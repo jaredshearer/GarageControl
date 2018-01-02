@@ -1,5 +1,5 @@
 /**
- *  GarageRelay
+ *  GarageControl
  *
  *  Copyright 2017 Jared Shearer
  *
@@ -21,28 +21,14 @@ preferences {
 } 
  
 metadata {
-	definition (name: "GarageRelay", namespace: "jshearer", author: "Jared Shearer") {
-		capability "Alarm"
+	definition (name: "GarageControl", namespace: "jshearer", author: "Jared Shearer") {
 		capability "Contact Sensor"
-        capability "Sensor"
+        	capability "Sensor"
 		capability "Polling"
 		capability "Refresh"
 		capability "Switch"
 		capability "Temperature Measurement"
 
-	/*	//commented out and replaced with below code
-        attribute "switchUnLock", "string"
-		attribute "switchLock", "string"
-		attribute "switchTrunk", "string"
-		attribute "switchStart", "string"
-		attribute "switchPanic", "string"
-		command "cmdUnLock"
-		command "cmdLock"
-		command "cmdTrunk"
-		command "cmdStart"
-		command "cmdPanic"
-	*/
-    
         attribute "garage1", "string"
 		attribute "garage2", "string"
 		attribute "garage3", "string"
@@ -86,7 +72,8 @@ metadata {
 		    }
             
             
-			valueTile("temperature", "device.temperature", width: 2, height: 2) {
+			// TO DO
+            valueTile("temperature", "device.temperature", width: 2, height: 2) {
 				state("temperature", label:'${currentValue}°', unit:"F",
 				backgroundColors:[
 					[value: 31, color: "#153591"],
@@ -124,48 +111,6 @@ def parse(String description) {
 
 // handle commands
 
-
-def strobe() {
-	log.debug "Executing 'strobe'"
-	// TODO: handle 'strobe' command
-}
-
-def siren() {
-	log.debug "Executing 'siren'"
-	// TODO: handle 'siren' command
-}
-
-def both() {
-	log.debug "Executing 'both'"
-	// TODO: handle 'both' command
-}
-
-def poll() {
-	log.debug "Executing 'poll'"
-	// TODO: handle 'poll' command
-}
-
-def refresh() {
-	log.debug "Executing 'refresh'"
-	// TODO: handle 'refresh' command
-}
-
-def on() {
-	log.debug "Executing 'on'"
-	// TODO: handle 'on' command
-}
-
-def off() {
-	log.debug "Executing 'off'"
-	// TODO: handle 'off' command
-}
-
- // 1 = Unlock		switchUnLock	cmdUnLock
- // 2 = Lock		switchLock		cmdLock
- // 3 = Trunk		switchTrunk		cmdTrunk
- // 4 = Start		switchStart		cmdStart
- // 5 = Panic		switchPanic		cmdPanic
-
 def garage1() {
 	log.debug "Executing 'garage1'"
 	// TODO: handle 'cmdUnLock' command
@@ -183,19 +128,6 @@ def garage3() {
 	// TODO: handle 'cmdTrunk' command
     put '3'
 }
-
-/* COMMENTING OUT EXTRA COMMANDS
-def cmdStart() {
-	log.debug "Executing 'cmdStart'"
-	// TODO: handle 'cmdStart' command
-    put '4'
-}
-def cmdPanic() {
-	log.debug "Executing 'cmdPanic'"
-	// TODO: handle 'cmdPanic' command
-    put '5'
-}
-*/
 
 private put(ValveAction) {
 	log.debug "sending post";
