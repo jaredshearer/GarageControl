@@ -9,6 +9,7 @@ int g1Switch = D4;   // switch to see if garage 1, 2, or 3 is closed or open
 int g2Switch = D5;
 int g3Switch = D6;
 
+// Defining stuff for that sweet, sweet PWM'ing status LED
 int led = A4;        // define what pin the LED is on (A4 is a PWM pin)
 int brightness = 0;  // how bright the LED is (PWM)
 int fadeAmount = 5;  // how many points (between 0 and 255) to fade the LED by
