@@ -10,12 +10,13 @@ The status LED uses PWM to fade an LED to remind you that you left the door open
 
 */
 
-int GarageRelay(String command);
+// Define all the thingz
+int GarageRelay(String command);  // This defines the function that will actually toggle the relays to open the doors.
 
 int g1Relay = D0;    // relay that activates garage 1, 2, or 3
 int g2Relay = D1;
 int g3Relay = D2; 
-// int g4Relay = D3; // This relay isn't being used...but it could be! You'd just need to edit your GarageRelay() function to include a fourth relay
+// int g4Relay = D3; // This relay isn't being used...but it could be!
 
 int g1Switch = D4;   // switch to see if garage 1, 2, or 3 is closed or open
 int g2Switch = D5;
@@ -45,24 +46,25 @@ void setup() {
     
     pinMode(led, OUTPUT);
 
-    digitalWrite(g1Relay, LOW);
+    digitalWrite(g1Relay, LOW); // Set your relays to low so we don't accidentally open the doors on restart
     digitalWrite(g2Relay, LOW);
     digitalWrite(g3Relay, LOW);
 
-// Publish toggle functions and door switch variables to the Particle server
+// Publish toggle functions and door switch variables to the Particle server so SmartThings can see them
     Particle.function("GarageRelay", GarageRelay);
     Particle.variable("g1State", g1State);
     Particle.variable("g2State", g2State);
     Particle.variable("g3State", g3State);
     
-    
 }
 
 void loop() {
     
-    g1State = digitalRead(g1Switch);
+    g1State = digitalRead(g1Switch); // Read the state of each door from its respective variable..over and over and over
     g2State = digitalRead(g2Switch);
     g3State = digitalRead(g3Switch);
+    
+    
     
     // These three if/else statements figure out if the door state has changed since the last 
     // go round, and publish the change in state if they have.
@@ -102,11 +104,16 @@ void loop() {
         }        
     }
     
+    
+    
+    // These set the last states to the current states for the next go round.
     g1LastState = g1State;
     g2LastState = g2State;
     g3LastState = g3State;
     
-    // LED fading in and out code
+    
+    
+    // LED fading in and out code to remind you that you left the garage door open
     // set brightness of led
     if (/*digitalRead(g1Switch) == LOW && digitalRead(g2Switch) == LOW && */digitalRead(g3Switch) == LOW){      // Just using the one switch for now
         analogWrite(led, 0); // if g1Switch is low, turn off the LED
@@ -123,7 +130,9 @@ void loop() {
         // wait to see the dimming effect
         // less is faster
         delay(30);
-}
+} // END LOOP
+
+
 
     // This is the function that gets called from SmartThings to trigger the relays.
     // Notice that it's outside of the loop, and it only runs when it's called.
