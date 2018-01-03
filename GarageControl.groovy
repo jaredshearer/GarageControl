@@ -55,8 +55,17 @@ metadata {
 		// TODO: define your main and details tiles here
 		    
             valueTile("g1State", "device.g1State", width: 2, height: 1) {
-            state("g1State", label:'${currentValue}')
+            state("0", label:'${currentValue}')
+            state("1", label:'${currentValue}')
         	}
+            valueTile("g2State", "device.g2State", width: 2, height: 1) {
+            state("g2State", label:'${currentValue}')
+        	}
+            valueTile("g3State", "device.g3State", width: 2, height: 1) {
+            state("g3State", label:'${currentValue}')
+        	}
+            
+            /* COMMENTED OUT BECAUSE THAT DIDN'T WORK...
             standardTile("contact1", "device.g1State", width: 2, height: 2) {
 				state "0", label: "OPEN", icon: "st.doors.garage.garage-open", backgroundColor: "##79b821"
 				state "1", label: "CLOSED", icon: "st.doors.garage.garage-closed", backgroundColor: "#e86d13"
@@ -69,16 +78,18 @@ metadata {
 				state "0", label: "OPEN", icon: "st.doors.garage.garage-open", backgroundColor: "##79b821"
 				state "1", label: "CLOSED", icon: "st.doors.garage.garage-closed", backgroundColor: "#e86d13"
 		    }
+            */
+            
             standardTile("garage1", "device.garage1", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-				state "on", label: "Left", action: "garage1", icon: "st.shields.shields.arduino", backgroundColor: "#79b821"
+				state "on", label: "Left", action: "garage1", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff"
 				state "off", label: "Left", action: "garage1", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff"
 			}
     		standardTile("garage2", "device.garage2", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-				state "on", label: "Middle", action: "garage2", icon: "st.shields.shields.arduino", backgroundColor: "#79b821"
+				state "on", label: "Middle", action: "garage2", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff"
 				state "off", label: "Middle", action: "garage2", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff"
 			}
     		standardTile("garage3", "device.garage3", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-				state "on", label: "Right", action: "garage3", icon: "st.shields.shields.arduino", backgroundColor: "#79b821"
+				state "on", label: "Right", action: "garage3", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff"
 				state "off", label: "Right", action:"garage3", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff"
 			}         
 
@@ -101,24 +112,16 @@ metadata {
 			standardTile("refresh", "device.switch", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
 		    	state "default", label:'', action:"refresh.refresh", icon:"st.secondary.refresh"
 			}
-	main (["garage3"])
-    details(["g1State","contact1","contact2","contact3","garage1","garage2","garage3","temperature","refresh"])
+	main (["g3State"])
+    details(["g1State","g2State","g3State",/*"contact1","contact2","contact3",*/"garage1","garage2","garage3","temperature","refresh"])
 	}
 }
 
-// parse events into attributes
+// I have no idea if I need this
 def parse(String description) {
-	log.debug "Parsing '${description}'"
-	// TODO: handle 'alarm' attribute
-	// TODO: handle 'battery' attribute
-	// TODO: handle 'switch' attribute
-	// TODO: handle 'temperature' attribute
-	// TODO: handle 'switchUnLock' attribute
-	// TODO: handle 'switchLock' attribute
-	// TODO: handle 'switchTrunk' attribute
-	// TODO: handle 'switchStart' attribute
-	// TODO: handle 'switchPanic' attribute
+    def pair = description.split(":")
 
+    createEvent(name: pair[0].trim(), value: pair[1].trim())
 }
 
 // handle commands
@@ -157,7 +160,7 @@ def refresh() {
 private put(GarageRelay) {
 	log.debug "sending post";
 		httpPost(
-			uri: "https://api.spark.io/v1/devices/${deviceId}/GarageRelay",
+			uri: "https://api.particle.io/v1/devices/${deviceId}/GarageRelay",
 	        body: [access_token: token, command: GarageRelay],  
 		) {response -> log.debug (response.data)}
 	log.debug "post sent";
