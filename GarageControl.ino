@@ -2,7 +2,7 @@
 Garage Control
 by Jared Shearer
 
-This Particle sketch integrates a Particle (Photon in my case) with a Relay Shield with SmartThings
+This Particle sketch integrates a Particle (Photon in my case) with a Relay Shield with SmartThings.
 
 The Relay Shield uses D0-D3 to actuate the relays.
 
