@@ -18,16 +18,24 @@
 preferences {
     input("deviceId", "text", title: "Device ID")
     input("token", "text", title: "Access Token")
+
+	// This is where we define the names of the "switches" on the Particle that are sensing the state of the doors
+	input name: "g1State", type: "text", title: "Garage 1 Switch", required: true, defaultValue: "g1State"
+    input name: "g2State", type: "text", title: "Garage 2 Switch", required: true, defaultValue: "g2State"
+    input name: "g3State", type: "text", title: "Garage 3 Switch", required: true, defaultValue: "g3State"
 } 
  
 metadata {
 	definition (name: "GarageControl", namespace: "jshearer", author: "Jared Shearer") {
 		capability "Contact Sensor"
-        	capability "Sensor"
+        capability "Sensor"
 		capability "Polling"
 		capability "Refresh"
 		capability "Switch"
 		capability "Temperature Measurement"
+        attribute "g1State", "number"
+        attribute "g2State", "number"
+        attribute "g3State", "number"
 
         attribute "garage1", "string"
 		attribute "garage2", "string"
@@ -45,8 +53,23 @@ metadata {
 
 	tiles(scale: 2) {
 		// TODO: define your main and details tiles here
-		        
-			standardTile("garage1", "device.garage1", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+		    
+            valueTile("g1State", "device.g1State", width: 2, height: 1) {
+            state("g1State", label:'${currentValue}')
+        	}
+            standardTile("contact1", "device.g1State", width: 2, height: 2) {
+				state "0", label: "OPEN", icon: "st.doors.garage.garage-open", backgroundColor: "##79b821"
+				state "1", label: "CLOSED", icon: "st.doors.garage.garage-closed", backgroundColor: "#e86d13"
+		    }
+    		standardTile("contact2", "device.g2State", width: 2, height: 2) {
+				state "0", label: "OPEN", icon: "st.doors.garage.garage-open", backgroundColor: "##79b821"
+				state "1", label: "CLOSED", icon: "st.doors.garage.garage-closed", backgroundColor: "#e86d13"
+		    }
+            standardTile("contact3", "device.g3State", width: 2, height: 2) {
+				state "0", label: "OPEN", icon: "st.doors.garage.garage-open", backgroundColor: "##79b821"
+				state "1", label: "CLOSED", icon: "st.doors.garage.garage-closed", backgroundColor: "#e86d13"
+		    }
+            standardTile("garage1", "device.garage1", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
 				state "on", label: "Left", action: "garage1", icon: "st.shields.shields.arduino", backgroundColor: "#79b821"
 				state "off", label: "Left", action: "garage1", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff"
 			}
@@ -58,18 +81,7 @@ metadata {
 				state "on", label: "Right", action: "garage3", icon: "st.shields.shields.arduino", backgroundColor: "#79b821"
 				state "off", label: "Right", action:"garage3", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff"
 			}         
-            standardTile("contact1", "device.contact1", width: 2, height: 2) {
-				state "Open", label: "OPEN", icon: "st.doors.garage.garage-open", backgroundColor: "##79b821"
-				state "Closed", label: "CLOSED", icon: "st.doors.garage.garage-closed", backgroundColor: "#e86d13"
-			}
-    		standardTile("contact2", "device.contact2", width: 2, height: 2) {
-				state "Open", label: "OPEN", icon: "st.doors.garage.garage-open", backgroundColor: "##79b821"
-				state "Closed", label: "CLOSED", icon: "st.doors.garage.garage-closed", backgroundColor: "#e86d13"
-		    }
-            standardTile("contact3", "device.contact3", width: 2, height: 2) {
-				state "Open", label: "OPEN", icon: "st.doors.garage.garage-open", backgroundColor: "##79b821"
-				state "Closed", label: "CLOSED", icon: "st.doors.garage.garage-closed", backgroundColor: "#e86d13"
-		    }
+
             
             
 			// TO DO
@@ -90,7 +102,7 @@ metadata {
 		    	state "default", label:'', action:"refresh.refresh", icon:"st.secondary.refresh"
 			}
 	main (["garage3"])
-    details(["contact1","contact2","contact3","garage1","garage2","garage3","temperature","refresh"])
+    details(["g1State","contact1","contact2","contact3","garage1","garage2","garage3","temperature","refresh"])
 	}
 }
 
@@ -113,39 +125,71 @@ def parse(String description) {
 
 def garage1() {
 	log.debug "Executing 'garage1'"
-	// TODO: handle 'cmdUnLock' command
-    put '1'
+	put '1'
+    refresh()
 }
 
 def garage2() {
 	log.debug "Executing 'garage2'"
-	// TODO: handle 'cmdLock' command
-    put '2'
+	put '2'
+    refresh()
 }
 
 def garage3() {
 	log.debug "Executing 'garage3'"
-	// TODO: handle 'cmdTrunk' command
-    put '3'
+	put '3'
+    refresh()
 }
 
-private put(ValveAction) {
+def poll() {
+    log.debug "Executing 'poll'"
+    refresh()
+}    
+
+def refresh() {
+	log.debug "Executing 'refresh'"
+    getg1State()
+    getg2State()
+    getg3State()
+}
+
+// How we push commands from the device handler to the Particle
+private put(GarageRelay) {
 	log.debug "sending post";
 		httpPost(
 			uri: "https://api.spark.io/v1/devices/${deviceId}/GarageRelay",
-	        body: [access_token: token, command: ValveAction],  
+	        body: [access_token: token, command: GarageRelay],  
 		) {response -> log.debug (response.data)}
 	log.debug "post sent";
     }
-	
-	def GetValveState() {
-		def params = [
-		uri: "https://api.spark.io/v1/devices/${deviceId}/GarageState?access_token=${token}"]		
-		try{
-			httpGet(params){ resp ->
-                    return resp.data.result;
-			    }
-			} catch (e) {
-			    log.error "something went wrong: $e"
-			}
+
+// These three are how we are (theoretically) getting the state of the doors from the Particle
+private getg1State() {
+    def closure = { response ->
+        log.debug "g1State request was successful, $response.data"
+
+        sendEvent(name: "g1State", value: response.data.result)
+    }
+
+    httpGet("https://api.particle.io/v1/devices/${deviceId}/${g1State}?access_token=${token}", closure)
+	}
+    
+private getg2State() {
+    def closure = { response ->
+        log.debug "g2State request was successful, $response.data"
+
+        sendEvent(name: "g2State", value: response.data.result)
+    }
+
+    httpGet("https://api.particle.io/v1/devices/${deviceId}/${g2State}?access_token=${token}", closure)
+	}
+
+private getg3State() {
+    def closure = { response ->
+        log.debug "g3State request was successful, $response.data"
+
+        sendEvent(name: "g3State", value: response.data.result)
+    }
+
+    httpGet("https://api.particle.io/v1/devices/${deviceId}/${g3State}?access_token=${token}", closure)
 	}
