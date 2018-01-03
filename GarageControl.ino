@@ -3,6 +3,8 @@ int GarageRelay(String command);
 int g1Relay = D0;    // relay that activates garage 1, 2, or 3
 int g2Relay = D1;
 int g3Relay = D2; 
+// int g4Relay = D3; // This relay isn't being used...but it could be! You'd just need to edit your GarageRelay() function to include a fourth relay
+
 int g1Switch = D4;   // switch to see if garage 1, 2, or 3 is closed or open
 int g2Switch = D5;
 int g3Switch = D6;
@@ -10,6 +12,11 @@ int g3Switch = D6;
 int led = A4;        // define what pin the LED is on (A4 is a PWM pin)
 int brightness = 0;  // how bright the LED is (PWM)
 int fadeAmount = 5;  // how many points (between 0 and 255) to fade the LED by
+
+// Door state sensing declarations
+int g1State = 0;
+int g2State = 0;
+int g3State = 0;
 
 void setup() {
     pinMode(g1Relay, OUTPUT);
@@ -28,11 +35,18 @@ void setup() {
 
 // Publish toggle functions and door switch variables to the Particle server
     Particle.function("GarageRelay", GarageRelay);
-//    Particle.variable("GarageState", GarageState);
+    Particle.variable("g1State", g1State);
+    Particle.variable("g2State", g2State);
+    Particle.variable("g3State", g3State);
+    
     
 }
 
 void loop() {
+    
+    g1State = digitalRead(g1Switch);
+    g2State = digitalRead(g2Switch);
+    g3State = digitalRead(g3Switch);
     
     // LED fading in and out code
     // set brightness of led
@@ -53,14 +67,17 @@ void loop() {
         delay(30);
 }
 
+    // This is the function that gets called from SmartThings to trigger the relays.
+    // Notice that it's outside of the loop, and it only runs when it's called.
     int GarageRelay(String command){
         
         if (command == "1") {        // Toggle g1Relay with a single LED flash in the middle for feedback and delay adjusted for 1 second
             digitalWrite(g1Relay, HIGH);
+            delay(250);
             digitalWrite(led, HIGH);
             delay(100);
             digitalWrite(led, LOW);
-            delay(900);
+            delay(650);
             digitalWrite(g1Relay, LOW);
             Particle.publish("GarageRelay", "Garage 1 Relay Toggled!", PRIVATE);
 	        return 1;
@@ -69,13 +86,14 @@ void loop() {
         else if (command == "2"){    // Toggle g2Relay with a double LED flash in the middle for feedback and delay adjusted for 1 second
             digitalWrite(g2Relay, HIGH);
             digitalWrite(led, HIGH);
+            delay(250);
             delay(100);
             digitalWrite(led, LOW);
             delay(100);
             digitalWrite(led, HIGH);
             delay(100);
             digitalWrite(led, LOW);
-            delay(700);
+            delay(450);
             digitalWrite(g2Relay, LOW);
             Particle.publish("GarageRelay", "Garage 2 Relay Toggled!", PRIVATE);
             return 2;
@@ -83,6 +101,7 @@ void loop() {
         
         else if (command == "3"){ // Toggle g3Relay with a triple LED flash in the middle for feedback and delay adjusted for 1 second
             digitalWrite(g3Relay, HIGH);
+            delay(250);
             digitalWrite(led, HIGH);
             delay(100);
             digitalWrite(led, LOW);
@@ -94,7 +113,7 @@ void loop() {
             digitalWrite(led, HIGH);
             delay(100);
             digitalWrite(led, LOW);
-            delay(500);
+            delay(250);
             digitalWrite(g3Relay, LOW);
             Particle.publish("GarageRelay", "Garage 3 Relay Toggled!", PRIVATE);
 	        return 3;
