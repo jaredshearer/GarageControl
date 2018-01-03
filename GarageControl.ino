@@ -1,3 +1,15 @@
+/*
+Garage Control
+by Jared Shearer
+
+This Particle sketch integrates a Particle (Photon in my case) with a Relay Shield with SmartThings
+
+The Relay Shield uses D0-D3 to actuate the relays.
+
+The status LED uses PWM to fade an LED to remind you that you left the door open.
+
+*/
+
 int GarageRelay(String command);
 
 int g1Relay = D0;    // relay that activates garage 1, 2, or 3
@@ -14,10 +26,13 @@ int led = A4;        // define what pin the LED is on (A4 is a PWM pin)
 int brightness = 0;  // how bright the LED is (PWM)
 int fadeAmount = 5;  // how many points (between 0 and 255) to fade the LED by
 
-// Door state sensing declarations
+// Door state sensing declarations used in the loop and by SmartThings
 int g1State = 0;
 int g2State = 0;
 int g3State = 0;
+int g1LastState = 0;
+int g2LastState = 0;
+int g3LastState = 0;
 
 void setup() {
     pinMode(g1Relay, OUTPUT);
@@ -48,6 +63,48 @@ void loop() {
     g1State = digitalRead(g1Switch);
     g2State = digitalRead(g2Switch);
     g3State = digitalRead(g3Switch);
+    
+    // These three if/else statements figure out if the door state has changed since the last 
+    // go round, and publish the change in state if they have.
+    if(g1State == g1LastState){
+        // If they're the same, do nothing.
+    }
+    else{ // If they're different, figure out which state it's in and publish its state.
+        if(g1State == 0){
+        Particle.publish("Garage 1 closed.");
+        }
+        else if(g1State == 1){
+        Particle.publish("Garage 1 opened.");
+        }        
+    }
+    
+    if(g2State == g2LastState){
+        // If they're the same, do nothing.
+    }
+    else{ // If they're different, figure out which state it's in and publish its state.
+        if(g2State == 0){
+        Particle.publish("Garage 2 closed.");
+        }
+        else if(g2State == 1){
+        Particle.publish("Garage 2 opened.");
+        }        
+    }
+    
+    if(g3State == g3LastState){
+        // If they're the same, do nothing.
+    }
+    else{ // If they're different, figure out which state it's in and publish its state.
+        if(g3State == 0){
+        Particle.publish("Garage 3 closed.");
+        }
+        else if(g3State == 1){
+        Particle.publish("Garage 3 opened.");
+        }        
+    }
+    
+    g1LastState = g1State;
+    g2LastState = g2State;
+    g3LastState = g3State;
     
     // LED fading in and out code
     // set brightness of led
