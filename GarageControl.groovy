@@ -19,7 +19,7 @@ preferences {
     }
 
 metadata {
-    definition (name: "GarageControl", author: "jsheahawk") {
+    definition (name: "GarageControl", namespace: "jshearer", author: "Jared Shearer") {
         capability "Polling"
         capability "Sensor"
         capability "Refresh"
