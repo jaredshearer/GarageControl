@@ -8,4 +8,5 @@ it sees a Particle.publish from the Particle.
 
 TO DO:  - Get SmartThings to see the g#State as open/close sensors so I can use them
           with smartapps like Notify Me When and Smart Lighting
+
         - Get SmartThings to see the relays as garage doors
