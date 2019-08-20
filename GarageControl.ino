@@ -34,6 +34,7 @@
 **  - "close3" -- close garage 3 only if it's currently open
 **  - "openAll" -- trigger all doors only if they're closed
 **  - "closeAll" -- trigger all doors only if they're open
+**
 */
 
 // Define all the thingz
@@ -61,7 +62,7 @@ int rLED = A4;  // define pins of the RGB LED legs
 int gLED = A5;
 int bLED = A7;
 int triggerLED = D7; // This onboard LED flashes when a door is triggered
-int brightness = 10;  // How bright the LED flashing LED is between 0 (off) and 255 (blinding)
+int brightness = 200;  // How bright the LED flashing LED is between 0 (off) and 255 (blinding)
 int ledDelay = 500;  // RGB LED flash time
 
 void setup() {
@@ -105,11 +106,11 @@ void loop() {
         else{ // If they're different, figure out which state it's in and publish its state.
             if(g1State == HIGH){
                 g1Status = "Open";
-                Particle.publish("Garage 1", "Opened");
+                Particle.publish("Garage 1", "Opened", PRIVATE);
             }
             else if(g1State == LOW){
                 g1Status = "Closed";
-                Particle.publish("Garage 1", "Closed");
+                Particle.publish("Garage 1", "Closed", PRIVATE);
             }        
         }
     
@@ -119,11 +120,11 @@ void loop() {
         else{ // If they're different, figure out which state it's in and publish its state.
             if(g2State == HIGH){
                 g2Status = "Open";
-                Particle.publish("Garage 2", "Opened");
+                Particle.publish("Garage 2", "Opened", PRIVATE);
             }
             else if(g2State == LOW){
                 g2Status = "Closed";
-                Particle.publish("Garage 2", "Closed");
+                Particle.publish("Garage 2", "Closed", PRIVATE);
             }        
         }
     
@@ -133,11 +134,11 @@ void loop() {
         else{ // If they're different, figure out which state it's in and publish its state.
             if(g3State == HIGH){
                 g3Status = "Open";
-                Particle.publish("Garage 3", "Opened");
+                Particle.publish("Garage 3", "Opened", PRIVATE);
             }
             else if(g3State == LOW){
                 g3Status = "Closed";
-                Particle.publish("Garage 3", "Closed");
+                Particle.publish("Garage 3", "Closed", PRIVATE);
             }        
         }
     
